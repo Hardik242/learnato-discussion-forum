@@ -13,9 +13,20 @@ connectDB();
 const app = express();
 
 app.use(helmet());
+
+const allowedOrigins = [process.env.FRONTEND_URL, "http://localhost:5173"];
+
 app.use(
     cors({
-        origin: process.env.FRONTEND_URL || "http:localhost:5173",
+        origin: function (origin, callback) {
+            // 'origin' is the URL of the frontend making the request
+            // We check if it's in our allowed list
+            if (!origin || allowedOrigins.indexOf(origin) !== -1) {
+                callback(null, true);
+            } else {
+                callback(new Error("Not allowed by CORS"));
+            }
+        },
         credentials: true,
     })
 );
